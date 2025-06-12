@@ -6,33 +6,47 @@ import java.util.Random;
 @Entity
 public class ContaInvestimento extends Conta {
 
+    private double rendimentoAcumulado = 0.0;
+
     @Override
     public void sacar(double valor) {
-        double rendimento = saldo * 0.012; // assume último rendimento positivo
-        double imposto = rendimento * 0.225;
-        saldo -= (valor + imposto);
+        // Regra: 22,5% de imposto sobre o rendimento no momento do saque.
+        double imposto = this.rendimentoAcumulado * 0.225;
+
+        if (getSaldo() < valor + imposto) {
+            throw new IllegalArgumentException("Saldo insuficiente para cobrir o saque e os impostos sobre o rendimento.");
+        }
+
+        this.saldo -= (valor + imposto);
+        this.rendimentoAcumulado = 0; // O rendimento foi taxado, então o acumulado zera.
         adicionarOperacao(new Operacao(TipoOperacao.SAQUE, valor, this));
     }
 
     @Override
     public void depositar(double valor) {
-        saldo += valor;
+        if (valor <= 0) {
+            throw new IllegalArgumentException("O valor do depósito deve ser positivo.");
+        }
+        this.saldo += valor;
         adicionarOperacao(new Operacao(TipoOperacao.DEPOSITO, valor, this));
     }
 
+    /**
+     * Aplica o rendimento mensal, que pode ser positivo ou negativo, e a taxa sobre o rendimento.
+     */
     public void renderMensal() {
-        double taxa = -0.006 + new Random().nextDouble() * (0.015 - (-0.006));
-        double rendimento = saldo * taxa;
+        // Rendimento varia entre -0,60 e 1,50%
+        double taxaRendimento = -0.0060 + new Random().nextDouble() * (0.0150 - (-0.0060));
+        double rendimentoBruto = this.saldo * taxaRendimento;
 
-        if (rendimento > 0) {
-            saldo += rendimento - (rendimento * 0.01);
+        if (rendimentoBruto > 0) {
+            // Cobra 1% do rendimento mensal do cliente, caso o rendimento seja positivo.
+            double taxaSobreRendimento = rendimentoBruto * 0.01;
+            this.saldo += (rendimentoBruto - taxaSobreRendimento);
+            this.rendimentoAcumulado += rendimentoBruto; // Acumula apenas rendimento positivo
         } else {
-            saldo += rendimento;
+            // Se o rendimento for negativo, apenas debita do saldo
+            this.saldo += rendimentoBruto;
         }
-    }
-
-    @Override
-    public String getExtratoMensal() {
-        return "Extrato da Conta Investimento: " + getOperacoes().size() + " operações.";
     }
 }

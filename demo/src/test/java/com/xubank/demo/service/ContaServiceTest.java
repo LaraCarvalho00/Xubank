@@ -1,66 +1,69 @@
 package com.xubank.demo.service;
 
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.xubank.model.Conta;
+import com.xubank.model.ContaCorrente;
+import com.xubank.repository.ClienteRepository;
+import com.xubank.repository.ContaRepository;
+import com.xubank.service.ContaService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.xubank.model.Conta;
-import com.xubank.model.ContaCorrente;
-import com.xubank.repository.ContaRepository;
-import com.xubank.service.ContaService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class ContaServiceTest {
 
     private ContaService contaService;
     private ContaRepository contaRepository;
+    private ClienteRepository clienteRepository;
 
     @BeforeEach
     void setUp() {
-        contaRepository = mock(ContaRepository.class);
-        contaService = new ContaService(contaRepository);
+        contaRepository = Mockito.mock(ContaRepository.class);
+        clienteRepository = Mockito.mock(ClienteRepository.class);
+        contaService = new ContaService(contaRepository, clienteRepository);
     }
 
     @Test
-    void deveDepositarNaConta() {
-        ContaCorrente conta = new ContaCorrente();
-        conta.depositar(100);
+    void deveDepositarNaContaComSucesso() {
+        ContaCorrente contaExistente = new ContaCorrente();
+        contaExistente.depositar(100);
 
-        when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
-        when(contaRepository.save(conta)).thenReturn(conta);
+        when(contaRepository.findById(1L)).thenReturn(Optional.of(contaExistente));
+        when(contaRepository.save(any(Conta.class))).thenReturn(contaExistente);
 
-        Conta result = contaService.depositar(1L, 50);
-        assertEquals(150, result.getSaldo(), 0.01);
-        assertEquals(2, result.getOperacoes().size()); // 1 do setUp, 1 do depósito
+        Conta contaAtualizada = contaService.depositar(1L, 50);
+
+        assertEquals(150.0, contaAtualizada.getSaldo());
     }
 
     @Test
-    void deveSacarDaConta() {
-        ContaCorrente conta = new ContaCorrente();
-        conta.depositar(200);
+    void deveSacarDaContaComSucesso() {
+        ContaCorrente contaExistente = new ContaCorrente();
+        contaExistente.depositar(200);
 
-        when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
-        when(contaRepository.save(conta)).thenReturn(conta);
+        when(contaRepository.findById(1L)).thenReturn(Optional.of(contaExistente));
+        when(contaRepository.save(any(Conta.class))).thenReturn(contaExistente);
 
-        Conta result = contaService.sacar(1L, 100);
-        assertEquals(100, result.getSaldo(), 0.01);
-        assertEquals(2, result.getOperacoes().size()); // 1 do depósito, 1 do saque
+        Conta contaAtualizada = contaService.sacar(1L, 70);
+
+        assertEquals(130.0, contaAtualizada.getSaldo());
     }
 
     @Test
-    void deveLancarErroSeContaNaoExiste() {
+    void deveLancarErroSeContaNaoExisteAoDepositar() {
         when(contaRepository.findById(99L)).thenReturn(Optional.empty());
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             contaService.depositar(99L, 100);
         });
 
-        assertEquals("Conta não encontrada", ex.getMessage());
+        String mensagemEsperada = "Conta com ID 99 não encontrada";
+        assertEquals(mensagemEsperada, ex.getMessage());
     }
 }

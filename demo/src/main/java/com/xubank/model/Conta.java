@@ -1,8 +1,10 @@
 package com.xubank.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -23,11 +25,40 @@ public abstract class Conta {
 
     public abstract void sacar(double valor);
     public abstract void depositar(double valor);
-    public abstract String getExtratoMensal();
+
+    /**
+     * Gera o extrato com as operações do último mês.
+     * @return
+     */
+    public String getExtratoMensal() {
+        LocalDateTime umMesAtras = LocalDateTime.now().minusMonths(1);
+
+        List<Operacao> operacoesDoMes = this.operacoes.stream()
+                .filter(op -> op.getData().isAfter(umMesAtras))
+                .collect(Collectors.toList());
+
+        if (operacoesDoMes.isEmpty()) {
+            return "Nenhuma operação registrada no último mês.";
+        }
+
+        StringBuilder extrato = new StringBuilder("--- EXTRATO DO ÚLTIMO MÊS ---\n");
+        operacoesDoMes.forEach(op -> {
+            extrato.append(String.format("%s - %-10s - R$ %.2f\n",
+                    op.getData().toLocalDate(),
+                    op.getTipo(),
+                    op.getValor()));
+        });
+        extrato.append("----------------------------\n");
+        extrato.append(String.format("SALDO ATUAL: R$ %.2f\n", this.saldo));
+
+        return extrato.toString();
+    }
 
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public double getSaldo() { return saldo; }
+    protected void setSaldo(double saldo) { this.saldo = saldo; }
 
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }
