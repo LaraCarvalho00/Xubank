@@ -1,13 +1,16 @@
-package com.xubank.service;
-
-import com.xubank.model.Cliente;
-import com.xubank.repository.ClienteRepository;
-import org.springframework.stereotype.Service;
+package com.xubank.Service;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
+import com.xubank.Dto.ClienteDto;
+import com.xubank.Entity.Cliente;
+import com.xubank.Interfaces.IClienteService;
+import com.xubank.Repository.ClienteRepository;
+
 @Service
-public class ClienteService {
+public class ClienteService implements IClienteService {
 
     private final ClienteRepository clienteRepository;
 
@@ -15,16 +18,16 @@ public class ClienteService {
         this.clienteRepository = clienteRepository;
     }
 
-    // Cadastrar novo cliente
-    public Cliente cadastrarCliente(Cliente cliente) {
+    public Cliente CadastrarCliente(ClienteDto cliente) {
         if (clienteRepository.existsById(cliente.getCpf())) {
             throw new IllegalArgumentException("Cliente com este CPF já existe.");
         }
-        return clienteRepository.save(cliente);
-    }
 
-    // Buscar cliente por CPF
-    public Optional<Cliente> buscarPorCpf(String cpf) {
+        Cliente novoCliente = new Cliente(cliente);
+
+        return clienteRepository.save(novoCliente);
+    }
+    public Optional<Cliente> BuscarPorCpf(String cpf) {
         return clienteRepository.findById(cpf);
     }
 }

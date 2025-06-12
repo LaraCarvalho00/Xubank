@@ -1,13 +1,13 @@
-package com.xubank.DTO;
+package com.xubank.Dto;
 
-import com.xubank.model.TipoConta;
+import com.xubank.Enums.TipoConta;
 
-public class NovaContaDTO {
+import lombok.Data;
+
+@Data
+public class NovaContaDto {
+    
     private TipoConta tipo;
-    private String clienteCpf; // Adicionado para identificar o cliente
+    private String clienteCpf; 
 
-    public TipoConta getTipo() { return tipo; }
-    public void setTipo(TipoConta tipo) { this.tipo = tipo; }
-    public String getClienteCpf() { return clienteCpf; }
-    public void setClienteCpf(String clienteCpf) { this.clienteCpf = clienteCpf; }
-}
+} 

@@ -1,49 +1,56 @@
-package com.xubank.controller;
+package com.xubank.Controller;
 
-import com.xubank.DTO.NovaContaDTO;
-import com.xubank.DTO.OperacaoDTO;
-import com.xubank.model.Conta;
-import com.xubank.service.ContaService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.xubank.Dto.NovaContaDto;
+import com.xubank.Dto.OperacaoDto;
+import com.xubank.Entity.Conta;
+import com.xubank.Interfaces.IContaService;
+import com.xubank.Service.ContaService;
 
 @RestController
 @RequestMapping("/contas")
 public class ContaController {
 
-    private final ContaService contaService;
+    private final IContaService contaService;
 
     public ContaController(ContaService contaService) {
         this.contaService = contaService;
     }
 
     @PostMapping
-    public ResponseEntity<Conta> criarConta(@RequestBody NovaContaDTO dto) {
-        Conta novaConta = contaService.criarConta(dto.getClienteCpf(), dto.getTipo());
-        return ResponseEntity.ok(novaConta);
+    public ResponseEntity<String> CriarConta(@RequestBody NovaContaDto conta) {
+        String cliente = contaService.CriarConta(conta);
+        return ResponseEntity.ok(cliente);
     }
 
     @PostMapping("/{id}/deposito")
-    public ResponseEntity<Conta> depositar(@PathVariable Long id, @RequestBody OperacaoDTO dto) {
-        Conta conta = contaService.depositar(id, dto.getValor());
+    public ResponseEntity<Conta> Depositar(@PathVariable Long id, @RequestBody OperacaoDto operacao) {
+        Conta conta = contaService.Depositar(id, operacao.getValor());
         return ResponseEntity.ok(conta);
     }
 
     @PostMapping("/{id}/saque")
-    public ResponseEntity<Conta> sacar(@PathVariable Long id, @RequestBody OperacaoDTO dto) {
-        Conta conta = contaService.sacar(id, dto.getValor());
+    public ResponseEntity<Conta> Sacar(@PathVariable Long id, @RequestBody OperacaoDto operacao) {
+        Conta conta = contaService.Sacar(id, operacao.getValor());
         return ResponseEntity.ok(conta);
     }
 
     @GetMapping("/{id}/extrato")
-    public ResponseEntity<String> extrato(@PathVariable Long id) {
-        String extrato = contaService.extratoMensal(id);
+    public ResponseEntity<String> Extrato(@PathVariable Long id) {
+        String extrato = contaService.ExtratoMensal(id);
         return ResponseEntity.ok(extrato);
     }
 
     @PostMapping("/{id}/rendimento")
-    public ResponseEntity<Void> aplicarRendimento(@PathVariable Long id) {
-        contaService.aplicarRendimentoMensal(id);
+    public ResponseEntity<Void> AplicarRendimento(@PathVariable Long id) {
+        contaService.AplicarRendimentoMensal(id);
         return ResponseEntity.ok().build();
     }
 }

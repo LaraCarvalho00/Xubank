@@ -1,9 +1,9 @@
-package com.xubank.repository;
+package com.xubank.Repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.xubank.model.Cliente;
+import com.xubank.Entity.Cliente;
 
 public interface ClienteRepository extends JpaRepository<Cliente, String> {
 }

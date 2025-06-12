@@ -1,19 +1,19 @@
-package com.xubank.demo.service;
+package com.xubank.demo.Service;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.xubank.model.ContaRendaFixa;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.xubank.Entity.ContaRendaFixa;
 
 public class ContaRendaFixaTest {
 
     @Test
     void deveAplicarRendimentoMensal() {
         ContaRendaFixa conta = new ContaRendaFixa();
-        conta.depositar(1000);
+        conta.Depositar(1000);
 
-        conta.renderMensal(); // Aplica rendimento e -20 taxa
+        conta.RenderMensal(); 
 
         double esperado = 1000 * 1.008 - 20;
         assertEquals(esperado, conta.getSaldo(), 0.01);
@@ -22,12 +22,12 @@ public class ContaRendaFixaTest {
     @Test
     void deveDescontarImpostoNoSaque() {
         ContaRendaFixa conta = new ContaRendaFixa();
-        conta.depositar(1000);
-        conta.renderMensal();
+        conta.Depositar(1000);
+        conta.RenderMensal();
 
         double saldoAntes = conta.getSaldo();
-        conta.sacar(100);
+        conta.Sacar(100);
 
-        assertTrue(conta.getSaldo() < saldoAntes - 100); // verifica desconto de imposto
+        assertTrue(conta.getSaldo() < saldoAntes - 100); 
     }
 }

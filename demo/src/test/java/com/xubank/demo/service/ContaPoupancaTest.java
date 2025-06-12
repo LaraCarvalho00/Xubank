@@ -1,20 +1,20 @@
-package com.xubank.demo.service;
+package com.xubank.demo.Service;
 
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.xubank.model.ContaPoupanca;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.xubank.Entity.ContaPoupanca;
 
 public class ContaPoupancaTest {
 
     @Test
     void deveRenderJurosDe0_6Porcento() {
         ContaPoupanca conta = new ContaPoupanca();
-        conta.depositar(1000);
+        conta.Depositar(1000);
 
-        conta.renderMensal();
+        conta.RenderMensal();
 
         assertEquals(1006.0, conta.getSaldo(), 0.01);
     }
@@ -22,8 +22,8 @@ public class ContaPoupancaTest {
     @Test
     void deveSacarComSaldoSuficiente() {
         ContaPoupanca conta = new ContaPoupanca();
-        conta.depositar(500);
-        conta.sacar(200);
+        conta.Depositar(500);
+        conta.Sacar(200);
 
         assertEquals(300, conta.getSaldo(), 0.01);
     }
@@ -31,8 +31,8 @@ public class ContaPoupancaTest {
     @Test
     void deveFalharAoSacarComSaldoInsuficiente() {
         ContaPoupanca conta = new ContaPoupanca();
-        conta.depositar(100);
+        conta.Depositar(100);
 
-        assertThrows(IllegalArgumentException.class, () -> conta.sacar(200));
+        assertThrows(IllegalArgumentException.class, () -> conta.Sacar(200));
     }
 }

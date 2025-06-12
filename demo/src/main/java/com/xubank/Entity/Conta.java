@@ -1,12 +1,26 @@
-package com.xubank.model;
+package com.xubank.Entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Conta {
 
@@ -23,14 +37,10 @@ public abstract class Conta {
     @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Operacao> operacoes = new ArrayList<>();
 
-    public abstract void sacar(double valor);
-    public abstract void depositar(double valor);
+    public abstract void Sacar(double valor);
+    public abstract void Depositar(double valor);
 
-    /**
-     * Gera o extrato com as operações do último mês.
-     * @return
-     */
-    public String getExtratoMensal() {
+    public String GetExtratoMensal() {
         LocalDateTime umMesAtras = LocalDateTime.now().minusMonths(1);
 
         List<Operacao> operacoesDoMes = this.operacoes.stream()
@@ -54,19 +64,13 @@ public abstract class Conta {
         return extrato.toString();
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public double getSaldo() { return saldo; }
-    protected void setSaldo(double saldo) { this.saldo = saldo; }
-
-    public Cliente getCliente() { return cliente; }
-    public void setCliente(Cliente cliente) { this.cliente = cliente; }
-
-    public List<Operacao> getOperacoes() { return operacoes; }
-    public void setOperacoes(List<Operacao> operacoes) { this.operacoes = operacoes; }
-
-    public void adicionarOperacao(Operacao operacao) {
+    public void AdicionarOperacao(Operacao operacao) {
         this.operacoes.add(operacao);
+    }
+
+    public String ToString() {
+        StringBuilder str = new StringBuilder();
+        str.append("Conta ID: ").append(id).append('\n');       
+        return str.toString();
     }
 }

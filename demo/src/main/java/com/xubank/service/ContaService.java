@@ -1,13 +1,21 @@
-package com.xubank.service;
+package com.xubank.Service;
 
-import com.xubank.model.*;
-import com.xubank.repository.ClienteRepository;
-import com.xubank.repository.ContaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.xubank.Dto.NovaContaDto;
+import com.xubank.Entity.Cliente;
+import com.xubank.Entity.Conta;
+import com.xubank.Entity.ContaCorrente;
+import com.xubank.Entity.ContaInvestimento;
+import com.xubank.Entity.ContaPoupanca;
+import com.xubank.Entity.ContaRendaFixa;
+import com.xubank.Interfaces.IContaService;
+import com.xubank.Repository.ClienteRepository;
+import com.xubank.Repository.ContaRepository;
+
 @Service
-public class ContaService {
+public class ContaService implements IContaService {
 
     private final ContaRepository contaRepository;
     private final ClienteRepository clienteRepository;
@@ -16,60 +24,62 @@ public class ContaService {
         this.contaRepository = contaRepository;
         this.clienteRepository = clienteRepository;
     }
-    
+
     @Transactional
-    public Conta criarConta(String clienteCpf, TipoConta tipoConta) {
-        Cliente cliente = clienteRepository.findById(clienteCpf)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente com CPF " + clienteCpf + " não encontrado"));
+    public String CriarConta(NovaContaDto conta) {
+        Cliente cliente = clienteRepository.findById(conta.getClienteCpf())
+                .orElseThrow(() -> new IllegalArgumentException("Cliente com CPF " + conta.getClienteCpf() + " não encontrado"));
 
         Conta novaConta;
-        switch (tipoConta) {
-            case CORRENTE -> novaConta = new ContaCorrente();
-            case POUPANCA -> novaConta = new ContaPoupanca();
-            case RENDA_FIXA -> novaConta = new ContaRendaFixa();
-            case INVESTIMENTO -> novaConta = new ContaInvestimento();
-            default -> throw new IllegalArgumentException("Tipo de conta inválido: " + tipoConta);
+        switch (conta.getTipo().toString().toUpperCase()) {
+            case "CORRENTE" -> novaConta = new ContaCorrente();
+            case "POUPANCA" -> novaConta = new ContaPoupanca();
+            case "RENDA_FIXA" -> novaConta = new ContaRendaFixa();
+            case "INVESTIMENTO" -> novaConta = new ContaInvestimento();
+            default -> throw new IllegalArgumentException("Tipo de conta inválido: " + conta.getTipo());
         }
 
-        novaConta.setCliente(cliente);
-        return contaRepository.save(novaConta);
+        cliente.addConta(novaConta);
+        contaRepository.save(novaConta);
+
+        return cliente.ToString();
     }
 
     @Transactional
-    public Conta depositar(Long idConta, double valor) {
-        Conta conta = buscarContaOuFalhar(idConta);
-        conta.depositar(valor);
+    public Conta Depositar(Long idConta, double valor) {
+        Conta conta = BuscarContaOuFalhar(idConta);
+        conta.Depositar(valor);
         return contaRepository.save(conta);
     }
 
     @Transactional
-    public Conta sacar(Long idConta, double valor) {
-        Conta conta = buscarContaOuFalhar(idConta);
-        conta.sacar(valor);
+    public Conta Sacar(Long idConta, double valor) {
+        Conta conta = BuscarContaOuFalhar(idConta);
+        conta.Sacar(valor);
         return contaRepository.save(conta);
     }
 
-    public String extratoMensal(Long idConta) {
-        Conta conta = buscarContaOuFalhar(idConta);
-        return conta.getExtratoMensal();
+    public String ExtratoMensal(Long idConta) {
+        Conta conta = BuscarContaOuFalhar(idConta);
+        return conta.GetExtratoMensal();
     }
 
     @Transactional
-    public void aplicarRendimentoMensal(Long idConta) {
-        Conta conta = buscarContaOuFalhar(idConta);
+    public void AplicarRendimentoMensal(Long idConta) {
+        Conta conta = BuscarContaOuFalhar(idConta);
         if (conta instanceof ContaPoupanca cp) {
-            cp.renderMensal();
+            cp.RenderMensal();
         } else if (conta instanceof ContaRendaFixa rf) {
-            rf.renderMensal();
+            rf.RenderMensal();
         } else if (conta instanceof ContaInvestimento ci) {
-            ci.renderMensal();
+            ci.RenderMensal();
         } else {
             throw new UnsupportedOperationException("Esta conta não possui rendimento.");
         }
         contaRepository.save(conta);
     }
 
-    private Conta buscarContaOuFalhar(Long idConta) {
+    private Conta BuscarContaOuFalhar(Long idConta) {
         return contaRepository.findById(idConta)
                 .orElseThrow(() -> new IllegalArgumentException("Conta " + idConta + " não encontrada"));
     }

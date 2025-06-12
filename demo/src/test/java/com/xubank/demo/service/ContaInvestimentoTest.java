@@ -1,18 +1,18 @@
-package com.xubank.demo.service;
+package com.xubank.demo.Service;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.xubank.model.ContaInvestimento;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.xubank.Entity.ContaInvestimento;
 
 public class ContaInvestimentoTest {
 
     @Test
     void deveRenderEDescontar1PorcentoDoLucro() {
         ContaInvestimento conta = new ContaInvestimento();
-        conta.depositar(1000);
-        conta.renderMensal(); // assume taxaMensal positiva de 1.2%
+        conta.Depositar(1000);
+        conta.RenderMensal(); 
 
         double rendimentoBruto = 1000 * 0.012;
         double rendimentoLiquido = rendimentoBruto - (rendimentoBruto * 0.01);
@@ -23,12 +23,12 @@ public class ContaInvestimentoTest {
     @Test
     void deveCobrarImpostoNoSaque() {
         ContaInvestimento conta = new ContaInvestimento();
-        conta.depositar(1000);
-        conta.renderMensal();
+        conta.Depositar(1000);
+        conta.RenderMensal();
 
         double saldoAntes = conta.getSaldo();
-        conta.sacar(100);
+        conta.Sacar(100);
 
-        assertTrue(conta.getSaldo() < saldoAntes - 100); // verifica imposto de 22,5%
+        assertTrue(conta.getSaldo() < saldoAntes - 100); 
     }
 }

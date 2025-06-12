@@ -1,4 +1,6 @@
-package com.xubank.model;
+package com.xubank.Entity;
+
+import com.xubank.Enums.TipoOperacao;
 
 import jakarta.persistence.Entity;
 
@@ -6,27 +8,27 @@ import jakarta.persistence.Entity;
 public class ContaPoupanca extends Conta {
 
     @Override
-    public void sacar(double valor) {
+    public void Sacar(double valor) {
         if (saldo >= valor) {
             saldo -= valor;
-            adicionarOperacao(new Operacao(TipoOperacao.SAQUE, valor, this));
+            AdicionarOperacao(new Operacao(TipoOperacao.SAQUE, valor, this));
         } else {
             throw new IllegalArgumentException("Saldo insuficiente");
         }
     }
 
     @Override
-    public void depositar(double valor) {
+    public void Depositar(double valor) {
         saldo += valor;
-        adicionarOperacao(new Operacao(TipoOperacao.DEPOSITO, valor, this));
+        AdicionarOperacao(new Operacao(TipoOperacao.DEPOSITO, valor, this));
     }
 
-    public void renderMensal() {
+    public void RenderMensal() {
         saldo += saldo * 0.006;
     }
 
     @Override
-    public String getExtratoMensal() {
+    public String GetExtratoMensal() {
         return "Extrato da Poupança: " + getOperacoes().size() + " operações.";
     }
 }

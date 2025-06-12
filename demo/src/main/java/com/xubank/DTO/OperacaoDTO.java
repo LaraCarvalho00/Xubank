@@ -1,8 +1,8 @@
-package com.xubank.DTO;
+package com.xubank.Dto;
 
-public class OperacaoDTO {
+import lombok.Data;
+
+@Data
+public class OperacaoDto {
     private double valor;
-
-    public double getValor() { return valor; }
-    public void setValor(double valor) { this.valor = valor; }
 }
